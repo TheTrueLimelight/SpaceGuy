@@ -5,5 +5,5 @@
 
 AGameBase::AGameBase() {
  
-	// DefaultPawnClass = ;
+	DefaultPawnClass = APlayerCharacter::StaticClass();
 }
