@@ -98,7 +98,5 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &APlayerCharacter::Pitch);
 	PlayerInputComponent->BindAxis(TEXT("Roll"), this, &APlayerCharacter::Roll);
 
-	PlayerInputComponent->BindAction(TEXT("SwitchView"), this, &APlayerCharacter::SwitchView);
-
 }
 
