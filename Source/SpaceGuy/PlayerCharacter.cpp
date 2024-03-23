@@ -29,13 +29,13 @@ APlayerCharacter::APlayerCharacter()
 
 void APlayerCharacter::MoveLR(float movementDelta) {
 	FVector NewPos = GetActorLocation(); //Defines a Vector with the current location
-	NewPos.Y += movementDelta*MovementSpeed; //Alters coordinates on the Y axis
+	NewPos += movementDelta*MovementSpeed*GetActorRightVector(); //Alters coordinates on the Y axis
 	SetActorLocation(NewPos); //Sets the actor location with the altered coordinates
 }
 
 void APlayerCharacter::MoveWS(float movementDelta) {
 	FVector NewPos = GetActorLocation(); //Defines a Vector with the current location
-	NewPos.X += movementDelta*MovementSpeed; //Alters coordinates on the Y axis
+	NewPos+= movementDelta*MovementSpeed*GetActorForwardVector(); //Alters coordinates on the Y axis
 	SetActorLocation(NewPos); //Sets the actor location with the altered coordinates
 }
 
