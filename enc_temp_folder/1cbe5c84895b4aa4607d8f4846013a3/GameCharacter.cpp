@@ -47,18 +47,12 @@ void AGameCharacter::SwitchView() {  //Cycles the view through all the different
 };
 
 void AGameCharacter::Pitch(float rotationDelta) { //X Axis Rotatio
+	AddControllerPitchInput(rotationDelta * RotationSpeed);
+};
 
-	auto Rotation = View->GetRelativeRotation(); //Gets the Relative Rotation of the Camera
-	Rotation.Pitch += rotationDelta * RotationSpeed; //Adds delta mutiplied by speed onto roatrion
-	
-	if ( (90 > Rotation.Pitch) && (Rotation.Pitch > -90)) //If Camera rotation is less than 90 and more than -90 then rotate
-	{
-		View->SetRelativeRotation(Rotation);
-	}
-}
 void AGameCharacter::Yaw(float rotationDelta) { //Y Axis Rotation
 	AddControllerYawInput(rotationDelta * RotationSpeed);
-}
+};
 
 void AGameCharacter::Roll(float rotationDelta) { //Z Axis Rotation
 	auto Rotation = GetActorRotation();
@@ -94,8 +88,6 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("Yaw"), this, &AGameCharacter::Yaw);
 	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &AGameCharacter::Pitch);
 	PlayerInputComponent->BindAxis(TEXT("Roll"), this, &AGameCharacter::Roll);
-	
-	PlayerInputComponent->BindAction(TEXT("SwitchView"),EInputEvent::IE_Pressed,this, &AGameCharacter::SwitchView);
 
 
 
