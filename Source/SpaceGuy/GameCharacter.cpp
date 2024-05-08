@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "UObject/ConstructorHelpers.h"
 #include "GameCharacter.h"
 
 AGameCharacter::AGameCharacter()
@@ -9,22 +9,22 @@ AGameCharacter::AGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	//Component creation
-	CameraMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CameraMesh")); //CharacterMesh defintion
-	View = CreateDefaultSubobject<UCameraComponent>(TEXT("View"));   //CharacterMesh defintion
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 
-	//Character settings creation
-	MovementSpeed = 15.0f; //The Speed of the character
-	CurrentPerspective = 0; //Which perspective the character is in (0 First person 1 third person)
-	RotationSpeed = 1.0f;
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));   //CharacterMesh defintion
 
-	//Setup camera
-	CameraMesh->SetupAttachment(GetCapsuleComponent());
-	View->FieldOfView = 100.0f; //Sets FOV to 100
-	View->SetupAttachment(GetCapsuleComponent()); //Attaches the Camera to the CharacterMesh
-	View->SetRelativeLocation(FVector(150.0f, 0.0f, 50.0f)); //Sets the relative location in comparison to CharacterMesh
+	//Character settings value assignment
+	MovementSpeed = 15.0f; 
+	CurrentPerspective = 0; 
+	RotationSpeed = 1.0f;  
+	SprintMutiplayer = 20.0f;
 
-	//Checks
-	IsJumping = false;
+	//Setup camera & Mesh Component
+	MeshComp->SetupAttachment(GetCapsuleComponent()); //Attaches Mesh Component to the Capsule compenent
+	Camera->FieldOfView = 100.0f; //Sets FOV to 100
+	Camera->SetupAttachment(GetCapsuleComponent()); //Attaches the Camera to the CharacterMesh
+	Camera->SetRelativeLocation(FVector(150.0f, 0.0f, 50.0f)); //Sets the relative location in comparison to CharacterMesh
+
 }
 
 void AGameCharacter::MoveLR(float movementDelta) {
@@ -36,8 +36,8 @@ void AGameCharacter::MoveWS(float movementDelta) {
 }
 
 void AGameCharacter::SetView(int view) {  //Sets the character view based on the string given to it
-	if (view == 0) { View->SetRelativeLocation(FVector(150.0f, 0.0f, 50.0f)); } //If 0 Set to first person
-	else if (view == 1) { View->SetRelativeLocation(FVector(-150.0f, 0.0f, 50.0f)); } //If 1 Set to third person
+	if (view == 0) { Camera->SetRelativeLocation(FVector(150.0f, 0.0f, 50.0f)); } //If 0 Set to first person
+	else if (view == 1) { Camera->SetRelativeLocation(FVector(-150.0f, 0.0f, 50.0f)); } //If 1 Set to third person
 };
 
 void AGameCharacter::SwitchView() {  //Cycles the view through all the different perspectives
@@ -47,26 +47,28 @@ void AGameCharacter::SwitchView() {  //Cycles the view through all the different
 };
 
 void AGameCharacter::Pitch(float rotationDelta) { //X Axis Rotatio
-
-	auto Rotation = View->GetRelativeRotation(); //Gets the Relative Rotation of the Camera
+	auto Rotation = Camera->GetRelativeRotation(); //Gets the Relative Rotation of the Camera
 	Rotation.Pitch += rotationDelta * RotationSpeed; //Adds delta mutiplied by speed onto roatrion
 	
 	if ( (90 > Rotation.Pitch) && (Rotation.Pitch > -90)) //If Camera rotation is less than 90 and more than -90 then rotate
 	{
-		View->SetRelativeRotation(Rotation);
+		Camera->SetRelativeRotation(Rotation);
 	}
 }
+
 void AGameCharacter::Yaw(float rotationDelta) { //Y Axis Rotation
 	AddControllerYawInput(rotationDelta * RotationSpeed);
-}
-
-void AGameCharacter::Roll(float rotationDelta) { //Z Axis Rotation
-	auto Rotation = GetActorRotation();
-	Rotation.Roll += rotationDelta * RotationSpeed;
-	SetActorRotation(Rotation);
-}
+};
 
 
+
+void AGameCharacter::Sprint() {
+	MovementSpeed = MovementSpeed*SprintMutiplayer;
+};
+
+void AGameCharacter::SprintStop() {
+	MovementSpeed = SprintMutiplayer / SprintMutiplayer;
+};
 
 
 // Called when the game starts or when spawned
@@ -93,10 +95,11 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAxis(TEXT("Yaw"), this, &AGameCharacter::Yaw);
 	PlayerInputComponent->BindAxis(TEXT("Pitch"), this, &AGameCharacter::Pitch);
-	PlayerInputComponent->BindAxis(TEXT("Roll"), this, &AGameCharacter::Roll);
 	
 	PlayerInputComponent->BindAction(TEXT("SwitchView"),EInputEvent::IE_Pressed,this, &AGameCharacter::SwitchView);
-
+	
+	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AGameCharacter::Sprint);
+	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AGameCharacter::SprintStop);
 
 
 }

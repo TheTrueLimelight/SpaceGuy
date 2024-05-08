@@ -24,24 +24,40 @@ public:
 	void MoveLR(float movementDelta);//Method for Moving Character left or right
 	void MoveWS(float movementDelta);//Method for Moving Character forward or backward
 
-	//Defines possible ways to move camera
-	void SetView(int view);      //Sets the character view based on the string given to it
-	void SwitchView();           //Cycles the view through all the different perspectives
+	//Defines possible ways to rotate respective
+	void SetView(int view);//Sets the character view based on the string given to it
+	void SwitchView();     //Cycles the view through all the different perspectives
 
-	void Pitch(float rotationDelta); //X Axis Rotation
-	void Yaw(float rotationDelta); //Y Axis Rotation
-	void Roll(float rotationDelta); //Z Axis Rotation
+	//Defines possible ways to rotate character
+	void Pitch(float rotationDelta);//X Axis Rotation
+	void Yaw(float rotationDelta);  //Y Axis Rotation
+
+	void Sprint();    //Increases the base character speed by sprint speed
+	void SprintStop();//Removes the effect given by sprinting
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditAnywhere) UCameraComponent* View; //CharacterMesh defintion
-	UPROPERTY(EditAnywhere)UStaticMeshComponent* CameraMesh; //CharacterMesh defintion
-	UPROPERTY(EditAnywhere, Category = "Character Settings") float MovementSpeed; //The Speed of the character movement
-	UPROPERTY(EditAnywhere, Category = "Character Settings") float RotationSpeed; //The Speed of the character rotation
-	UPROPERTY(EditAnywhere, Category = "Character Settings") int CurrentPerspective; //Which perspective the character is in (0 First person 1 third person)
-	UPROPERTY() bool IsJumping; //If the character is jumping or not
+	//Base Character Properties
+	UPROPERTY(EditAnywhere) 
+	UCameraComponent* Camera; //CharacterMesh defintion
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MeshComp; //Character Mesh component defintion
+	
+	//Editable Character Settings
+	UPROPERTY(EditAnywhere, Category = "Character Settings") 
+	float MovementSpeed; //The Speed of the character movement
+	
+	UPROPERTY(EditAnywhere, Category = "Character Settings") 
+	float RotationSpeed; //The Speed of the character rotation
+	
+	UPROPERTY(EditAnywhere, Category = "Character Settings") 
+	int CurrentPerspective; //Which perspective the character is in (0 First person 1 third person)
+	
+	UPROPERTY(EditAnywhere , Category = "Character Settings") 
+	float SprintMutiplayer; //The sprint multiplier
 
 public:	
 	// Called every frame
