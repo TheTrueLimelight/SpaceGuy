@@ -6,9 +6,13 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/StaticMesh.h"
 
+
+
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameCharacter.generated.h"
+
 
 
 UCLASS()
@@ -34,30 +38,58 @@ public:
 
 	void Sprint();    //Increases the base character speed by sprint speed
 	void SprintStop();//Removes the effect given by sprinting
+	void CheckSprint(float DeltaTime);   //Checks if you are spritning and reduces/regenerates stamina
+	
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	//Base Character Properties
+	//Base Character Properties and components
 	UPROPERTY(EditAnywhere) 
 	UCameraComponent* Camera; //CharacterMesh defintion
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComp; //Character Mesh component defintion
+
+	UPROPERTY(EditAnywhere)
+	UCharacterMovementComponent* MovementComp;
 	
-	//Editable Character Settings
+
+
+	//General  Character Settings
 	UPROPERTY(EditAnywhere, Category = "Character Settings") 
-	float MovementSpeed; //The Speed of the character movement
-	
+	float MovementSpeedMutiplier; //The base speed of the character movement
+
 	UPROPERTY(EditAnywhere, Category = "Character Settings") 
 	float RotationSpeed; //The Speed of the character rotation
 	
 	UPROPERTY(EditAnywhere, Category = "Character Settings") 
 	int CurrentPerspective; //Which perspective the character is in (0 First person 1 third person)
 	
-	UPROPERTY(EditAnywhere , Category = "Character Settings") 
-	float SprintMutiplayer; //The sprint multiplier
+	//Sprint 
+
+	UPROPERTY(EditAnywhere , Category = "Sprint") 
+	float SprintMutipliyer; //The current sprint multiplier
+
+	bool isSprinting; //Is on when sprinting
+
+	//Stamina
+
+	UPROPERTY(EditAnywhere, Category = "Stamina")
+	float Stamina; //Your current stamina
+	
+	UPROPERTY(EditAnywhere, Category = "Stamina")
+	float MaxStamina; //Max stamina
+
+	UPROPERTY(EditAnywhere, Category = "Stamina")
+	float StaminaRegenRate; //How fast it regens
+
+	UPROPERTY(EditAnywhere, Category = "Stamina")
+	float StaminaUseRate; //How fast it uses it
+
+
+	
 
 public:	
 	// Called every frame
