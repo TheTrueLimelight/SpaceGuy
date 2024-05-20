@@ -6,7 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/StaticMesh.h"
 
-
+#include "GameFramework/Character.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -39,6 +39,9 @@ public:
 	void Sprint();    //Increases the base character speed by sprint speed
 	void SprintStop();//Removes the effect given by sprinting
 	void CheckSprint(float DeltaTime);   //Checks if you are spritning and reduces/regenerates stamina
+
+	void Dash();
+	void CheckDash(float DeltaTime);
 	
 
 protected:
@@ -85,8 +88,19 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Stamina")
 	float StaminaRegenRate; //How fast it regens
 
-	UPROPERTY(EditAnywhere, Category = "Stamina")
-	float StaminaUseRate; //How fast it uses it
+	//Dash
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float MaxDashLength;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashLength;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	float DashMutipliyer;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	bool isDashing;
 
 
 	

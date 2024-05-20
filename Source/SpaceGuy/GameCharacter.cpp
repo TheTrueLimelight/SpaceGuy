@@ -9,42 +9,43 @@ AGameCharacter::AGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	//Component assaingment
+
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
-
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));   //CharacterMesh defintion
-
 	MovementComp = GetCharacterMovement();
 
 
 	//Character settings value assignment 
+
 	CurrentPerspective = 0; 
-	
 	RotationSpeed = 1.0f;  
-	
 	MovementSpeedMutiplier = 1.0f;
 
+	//Sprint
 
-	//Sprint & Stamina 
 	SprintMutipliyer = 20.0f;
-
 	isSprinting = false;
 
+	//Stamina
+
 	MaxStamina = 8.0f;
-
 	StaminaRegenRate = 10.0f;
-			
-	StaminaUseRate = 0.5f;
-
 	Stamina = MaxStamina;
 
+	//Dashing
+
+	MaxDashLength = 1.0f;
+	DashLength = MaxDashLength;
+	isDashing = false;
+	DashMutipliyer = 2000.0f;
+
 	//Setup camera & Mesh Component
-	MeshComp->SetupAttachment(GetCapsuleComponent()); //Attaches Mesh Component to the Capsule compenent
 	
+	MeshComp->SetupAttachment(GetCapsuleComponent()); //Attaches Mesh Component to the Capsule compenent
+		
 	Camera->FieldOfView = 100.0f; //Sets FOV to 100
-
 	Camera->SetupAttachment(GetCapsuleComponent()); //Attaches the Camera to the CharacterMesh
-
-	Camera->SetRelativeLocation(FVector(150.0f, 0.0f, 50.0f)); //Sets the relative location in comparison to CharacterMesh
+	Camera->SetRelativeLocation(FVector(150.0f, 30.0f, 50.0f)); //Sets the relative location in comparison to CharacterMesh
 	
 }
 
@@ -60,6 +61,7 @@ void AGameCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	CheckSprint(DeltaTime);
+	CheckDash(DeltaTime);
 }
 
 
@@ -67,12 +69,18 @@ void AGameCharacter::Tick(float DeltaTime)
 
 void AGameCharacter::MoveLR(float movementDelta) 
 {
-	AddMovementInput(GetActorRightVector(), movementDelta * MovementComp->MaxWalkSpeed);
+	if (isDashing == false)
+	{
+		AddMovementInput(GetActorRightVector(), movementDelta * MovementComp->MaxWalkSpeed);
+	}
 }
 
 void AGameCharacter::MoveWS(float movementDelta) 
 {
-	AddMovementInput(GetActorForwardVector(), movementDelta * MovementComp->MaxWalkSpeed);
+	if (isDashing == false)
+	{
+		AddMovementInput(GetActorForwardVector(), movementDelta * MovementComp->MaxWalkSpeed);
+	}
 }
 
 //Perspective
@@ -81,12 +89,12 @@ void AGameCharacter::SetView(int view)   //Sets the character view based on the 
 {
 	if (view == 0) //If 0 Set to first person
 	{ 
-		Camera->SetRelativeLocation(FVector(150.0f, 0.0f, 50.0f));
+		Camera->SetRelativeLocation(FVector(150.0f, 30.0f, 50.0f));
 	} 
 	
 	else if (view == 1) //If 1 Set to third person
 	{ 
-		Camera->SetRelativeLocation(FVector(-370.0f, 0.0f, 140.0f)); 
+		Camera->SetRelativeLocation(FVector(-370.0f, 30.0f, 140.0f)); 
 	} 
 }
 
@@ -135,7 +143,7 @@ void AGameCharacter::Sprint()
 
 
 void AGameCharacter::SprintStop() 
-	
+{
 	if (isSprinting == true) 
 	{
 		MovementComp->MaxWalkSpeed /= SprintMutipliyer;
@@ -149,7 +157,7 @@ void AGameCharacter::CheckSprint(float DeltaTime) {
 	{
 		if (0.0f < Stamina) 
 		{
-			Stamina -= StaminaUseRate * DeltaTime;
+			Stamina -= DeltaTime;
 		}
 		
 		else
@@ -175,6 +183,39 @@ void AGameCharacter::CheckSprint(float DeltaTime) {
 	}
 }
 
+void AGameCharacter::Dash()
+{
+	if (isDashing == false && Stamina == MaxStamina)
+	{
+		SprintStop();
+		isDashing = true;
+		MovementComp->MaxWalkSpeed *= DashMutipliyer;
+	}
+
+}
+
+void AGameCharacter::CheckDash(float DeltaTime)
+{
+	if (isDashing)
+	{
+		if (0.0f < DashLength)
+		{
+			DashLength -= DeltaTime;
+			AddMovementInput(GetActorForwardVector(), DeltaTime * MovementComp->MaxWalkSpeed);
+		}
+
+		else
+		{
+			DashLength = MaxDashLength;
+			Stamina = 0.0f;
+			MovementComp->MaxWalkSpeed /= DashMutipliyer;
+			isDashing = false;
+		}
+	}
+
+
+
+}
 
 
 
@@ -194,5 +235,7 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AGameCharacter::Sprint);
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AGameCharacter::SprintStop);
 
+	PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &AGameCharacter::Dash);
 
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 }
