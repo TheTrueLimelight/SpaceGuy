@@ -42,7 +42,7 @@ AGameCharacter::AGameCharacter()
 	//Jump
 
 	isJumping = false;
-	JumpHeight = 500.0f;
+	JumpHeight = 50.0f;
 	JumpSpeed = 1.0f;
 	MaxJumpLength = 1.0f; //How long a jump is in second
 	JumpLength = 0.0f;
@@ -73,7 +73,6 @@ void AGameCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	CheckSprint(DeltaTime);
 	CheckDash(DeltaTime);
-	CheckJump(DeltaTime);
 }
 
 
@@ -231,11 +230,8 @@ void AGameCharacter::CheckDash(float DeltaTime)
 
 void AGameCharacter::Jump()
 {
-	if (isJumping == false) 
-	{
-		isJumping = true;
-		OriginalHeight = GetActorLocation().Z;
-	}
+	isJumping = true;
+	OriginalHeight = GetActorLocation().Z;
 }
 
 void AGameCharacter::CheckJump(float DeltaTime)
@@ -245,7 +241,7 @@ void AGameCharacter::CheckJump(float DeltaTime)
 		if (JumpLength < MaxJumpLength) 
 		{
 			FVector CurrentLocation = GetActorLocation();
-			CurrentLocation.Z = OriginalHeight + (JumpHeight * FMath::Sin(PI * JumpLength / MaxJumpLength));
+			CurrentLocation.Z += JumpHeight * FMath::Sin(PI * JumpLength / MaxJumpLength);
 			SetActorLocation(CurrentLocation);
 
 			JumpLength += DeltaTime * JumpSpeed;
@@ -283,5 +279,5 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction(TEXT("Dash"), EInputEvent::IE_Pressed, this, &AGameCharacter::Dash);
 
-	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AGameCharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 }
