@@ -7,7 +7,7 @@
 #include "Engine/StaticMesh.h"
 
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
+
 
 #include "Components/CapsuleComponent.h"
 #include "Math/UnrealMathUtility.h"
@@ -28,15 +28,7 @@ public:
 	void MoveLR(float movementDelta);//Method for Moving Character left or right
 	void MoveWS(float movementDelta);//Method for Moving Character forward or backward
 
-	//Defines possible ways to rotate respective
-	void SetView(int view);//Sets the character view based on the string given to it
-	void SwitchView();     //Cycles the view through all the different perspectives
-
-	//Defines possible ways to rotate character
-	void Pitch(float rotationDelta);//X Axis Rotation
-	void Yaw(float rotationDelta);  //Y Axis Rotation
-
-	void Sprint();    //Increases the base character speed by sprint speed
+	void Sprint();    
 	void SprintStop();//Removes the effect given by sprinting
 	void CheckSprint(float DeltaTime);   //Checks if you are spritning and reduces/regenerates stamina
 
@@ -45,33 +37,38 @@ public:
 
 	void Jump();
 	void CheckJump(float DeltaTime);
+
+	//Defines possible ways to rotate/move perspective
 	
+	void SwitchView();     //Cycles the view through all the different perspectives
+	void Pitch(float rotationDelta);//X Axis Rotation
+	void Yaw(float rotationDelta);  //Y Axis Rotation
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	//Base Character Properties and components
+
 	UPROPERTY(EditAnywhere) 
 	UCameraComponent* Camera; //CharacterMesh defintion
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComp; //Character Mesh component defintion
 
-	UPROPERTY(EditAnywhere)
-	UCharacterMovementComponent* MovementComp;
-	
-
-
 	//General  Character Settings
+
 	UPROPERTY(EditAnywhere, Category = "Character Settings") 
-	float MovementSpeedMutiplier; //The base speed of the character movement
+	float MovementSpeed; //The base speed of the character movement
 
 	UPROPERTY(EditAnywhere, Category = "Character Settings") 
 	float RotationSpeed; //The Speed of the character rotation
 	
 	UPROPERTY(EditAnywhere, Category = "Character Settings") 
 	int CurrentPerspective; //Which perspective the character is in (0 First person 1 third person)
+
+	UPROPERTY(EditAnywhere, Category = "Character Settings")
+	FVector PerspectiveLocation[2];
 	
 	//Sprint 
 
