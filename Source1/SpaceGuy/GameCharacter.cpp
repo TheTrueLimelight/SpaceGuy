@@ -43,8 +43,11 @@ AGameCharacter::AGameCharacter()
 	JumpHeight = 500.0f;
 	JumpSpeed = 1.0f;
 	MaxJumpLength = 1.0f; //How long a jump is in second
+	JumpLength = 0.0f;
+	OriginalHeight = 0.0f;
 
 	//Perspective
+
 	PerspectiveLocation[0] = FVector(150.0f, 30.0f, 50.0f);
 	PerspectiveLocation[1] = FVector(-370.0f, 30.0f, 140.0f);
 
@@ -54,7 +57,7 @@ AGameCharacter::AGameCharacter()
 		
 	Camera->FieldOfView = 100.0f; //Sets FOV to 100
 	Camera->SetupAttachment(GetCapsuleComponent()); //Attaches the Camera to the CharacterMesh
-	Camera->SetRelativeLocation(FVector(150.0f, 30.0f, 50.0f)); //Sets the relative location in comparison to CharacterMesh
+	Camera->SetRelativeLocation(PerspectiveLocation[0]); //Sets the relative location in comparison to CharacterMesh
 }
 
 // Called when the game starts or when spawned
@@ -71,7 +74,6 @@ void AGameCharacter::Tick(float DeltaTime)
 	CheckDash(DeltaTime);
 	CheckJump(DeltaTime);
 }
-
 
 //Movement
 
@@ -101,7 +103,6 @@ void AGameCharacter::SwitchView()
 	MeshComp->SetRelativeLocation(PerspectiveLocation[CurrentPerspective]); //Sets the view to the current prespective
 }
 
-
 //Rotation
 
 void AGameCharacter::Pitch(float rotationDelta)  //X Axis Rotation
@@ -120,7 +121,7 @@ void AGameCharacter::Yaw(float rotationDelta) //Y Axis Rotation
 	AddControllerYawInput(rotationDelta * RotationSpeed);
 }
 
-
+//Sprint
 
 void AGameCharacter::Sprint() 
 {
@@ -131,8 +132,6 @@ void AGameCharacter::Sprint()
 	}
 
 }
-
-
 
 void AGameCharacter::SprintStop() 
 {
@@ -161,24 +160,21 @@ void AGameCharacter::CheckSprint(float DeltaTime) {
 
 	else 
 	{
-		if (Stamina <= MaxStamina) 
+		if (Stamina < MaxStamina) 
 		{
 			Stamina += StaminaRegenRate * DeltaTime;
-		}
-
-		else
-		{
-			Stamina = MaxStamina;
 		}
 	}
 }
 
+//Dash & Jump
+
 void AGameCharacter::Dash()
 {
-	if (isDashing == false && Stamina == MaxStamina)
+	if (isDashing == false  && Stamina = MaxStamina)
 	{
 		SprintStop();
-		Stamina = 0.0f;
+		DashLength = MaxDashLength;
 		isDashing = true;
 	}
 }
@@ -195,8 +191,8 @@ void AGameCharacter::CheckDash(float DeltaTime)
 
 		else
 		{
-			DashLength = MaxDashLength;
 			isDashing = false;
+			Stamina = 0.0f;
 		}
 	}
 
@@ -230,13 +226,15 @@ void AGameCharacter::CheckJump(float DeltaTime)
 
 		else
 		{
+			FVector CurrentLocation = GetActorLocation();
+			CurrentLocation.Z = OriginalHeight + HeightIncrease;
+			SetActorLocation(CurrentLocation);
+
 			JumpLength = 0.0f;
 			isJumping = false;
 		}
 	}
 }
-
-
 
 // Called to bind functionality to input
 void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
